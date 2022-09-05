@@ -1,0 +1,16 @@
+myPath = "C:\Users\ChenChen\Desktop\1111"
+mySelection = #()
+for i in selection do
+(	
+	myObj = copy i pos:[0,0,0] name:i.name
+	append mySelection myObj
+)
+
+for i in mySelection do
+(
+	print i
+	select i
+	resetxform i
+	converttomesh i
+	exportfile (myPath + "\\" + i.name) #noPrompt selectedOnly:true
+)
