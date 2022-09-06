@@ -31,6 +31,22 @@ rollout TKT "Ben's Custom Batch Exporter ;)" width:320 height:32
 	
 	on Export_Button pressed do
 	(
+		mySelection = #()
+		for i in selection do
+		(	
+			myObj = copy i pos:[0,0,0] name:i.name
+			append mySelection myObj
+		)
+
+		for i in mySelection do
+		(
+			print i
+			select i
+			converttopoly i
+			resetxform i
+			exportfile (ExportPath + "\\" + i.name) #noPrompt selectedOnly:true
+			delete i
+		)
 		print ExportPath
 	)
 	
