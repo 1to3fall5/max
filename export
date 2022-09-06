@@ -1,16 +1,65 @@
-myPath = "C:\Users\ChenChen\Desktop\1111"
-mySelection = #()
-for i in selection do
-(	
-	myObj = copy i pos:[0,0,0] name:i.name
-	append mySelection myObj
-)
-
-for i in mySelection do
+try 
 (
-	print i
-	select i
-	resetxform i
-	converttomesh i
-	exportfile (myPath + "\\" + i.name) #noPrompt selectedOnly:true
+    cui.UnRegisterDialogBar TKT
+    destroyDialog TKT
+) catch ()
+ 
+rollout TKT "Ben's Custom Batch Exporter ;)" width:320 height:32
+(
+	local theDockState
+    local DialogDock
+    local scriptpath = @"D:\"
+    local INIfile = scriptpath + "Settings.ini"
+	
+	local The_INI_Path = ((GetDir #userScripts) + "/N00BY_Scripts/Export_Settings_2_1.ini")
+	local TheExportPath
+	dropdownList 'ExportPaths' width:192 height:40 toolTip:"Right click to open selected folder ;)" align:#left --enabled:false
+	button 'Browse' "..." pos:[210,5] width:25 height:21 toolTip:"Browse for export folder.Right click to purge list" align:#left
+	button 'Export_Button' "Export" pos:[240,5] width:68 height:22 toolTip:"Export selected objects." align:#left
+
+	on Browse pressed do
+	(
+		if ExportPaths.selected != undefined then Global ExportPath = getSavepath initialDir:ExportPaths.selected
+		else Global ExportPath = getSavepath initialDir:(GetDir #export)
+		if ExportPath != undefined do
+		(
+			insertItem ExportPath ExportPaths.items 1
+			ExportPaths.items = makeUniqueArray ExportPaths.items
+			setINISetting (The_INI_Path) "Paths" "Export_Paths" (ExportPaths.items as string)
+		)
+	)
+	
+	on Export_Button pressed do
+	(
+		print ExportPath
+	)
+	
+    function dockstatus = 
+	(
+        DialogDock = getINISetting INIfile "Dialog" "Dock"
+        TestDock = case DialogDock of 
+		(
+            ("cui_dock_left"): #cui_dock_left
+            ("cui_dock_right"): #cui_dock_right
+            ("cui_dock_bottom"): #cui_dock_bottom
+            ("cui_dock_top"): #cui_dock_top
+            ("cui_floatable"): #cui_floatable
+        )
+		format "TestDock: % \n" TestDock
+        TestDock
+    )
+ 
+    on TKT open do 
+	(
+        format "Open %\n" (dockstatus())
+        cui.RegisterDialogBar TKT  maxsize:[-1,-1] style:#(#cui_dock_all, #cui_floatable, #cui_handles  )
+        cui.DockDialogBar TKT (dockstatus())
+    )
+    on TKT close do 
+	(
+		try(setINISetting INIfile "Dialog" "Dock" theDockState forceUTF16:false)catch()
+    )
+
+
 )
+CreateDialog TKT style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
