@@ -68,8 +68,9 @@ rollout TKT "Ben's Custom Batch Exporter ;)" width:320 height:32
     on TKT open do 
 	(
         format "Open %\n" (dockstatus())
+		--cui.DockDialogBar rol_dockTest #cui_dock_top
         cui.RegisterDialogBar TKT  maxsize:[-1,-1] style:#(#cui_dock_all, #cui_floatable, #cui_handles  )
-        cui.DockDialogBar TKT (dockstatus())
+        --cui.DockDialogBar TKT #cui_dock_top
     )
     on TKT close do 
 	(
@@ -78,4 +79,4 @@ rollout TKT "Ben's Custom Batch Exporter ;)" width:320 height:32
 
 
 )
-CreateDialog TKT style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
+CreateDialog TKT style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)#cui_max_sized
