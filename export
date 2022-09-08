@@ -4,7 +4,7 @@ try
     destroyDialog TKT
 ) catch ()
  
-rollout TKT "Ben's Custom Batch Exporter ;)" width:320 height:32
+rollout TKT "Just Exporter" width:320 height:32
 (
 	local theDockState
     local DialogDock
@@ -16,18 +16,6 @@ rollout TKT "Ben's Custom Batch Exporter ;)" width:320 height:32
 	dropdownList 'ExportPaths' width:192 height:40 toolTip:"Right click to open selected folder ;)" align:#left --enabled:false
 	button 'Browse' "..." pos:[210,5] width:25 height:21 toolTip:"Browse for export folder.Right click to purge list" align:#left
 	button 'Export_Button' "Export" pos:[240,5] width:68 height:22 toolTip:"Export selected objects." align:#left
-
-	on Browse pressed do
-	(
-		if ExportPaths.selected != undefined then Global ExportPath = getSavepath initialDir:ExportPaths.selected
-		else Global ExportPath = getSavepath initialDir:(GetDir #export)
-		if ExportPath != undefined do
-		(
-			insertItem ExportPath ExportPaths.items 1
-			ExportPaths.items = makeUniqueArray ExportPaths.items
-			setINISetting (The_INI_Path) "Paths" "Export_Paths" (ExportPaths.items as string)
-		)
-	)
 	
 	on Export_Button pressed do
 	(
@@ -49,7 +37,34 @@ rollout TKT "Ben's Custom Batch Exporter ;)" width:320 height:32
 		)
 		print ExportPath
 	)
+
+	on ExportPaths rightClick do -- Open the selected path in windows explorer
+	(
+	if ExportPaths.selected != undefined do shellLaunch "explorer.exe" ExportPaths.selected
+	)
+
+	on Browse pressed do
+	(
+		if ExportPaths.selected != undefined then Global ExportPath = getSavepath initialDir:ExportPaths.selected
+		else Global ExportPath = getSavepath initialDir:(GetDir #export)
+		if ExportPath != undefined do
+		(
+			insertItem ExportPath ExportPaths.items 1
+			ExportPaths.items = makeUniqueArray ExportPaths.items
+			setINISetting (The_INI_Path) "Paths" "Export_Paths" (ExportPaths.items as string)
+		)
+	)
 	
+	on Browse rightClick do
+	(
+		if QueryBox "Are you sure you want to remove the selected path from the list ?" then
+		(
+			ExportPaths.items = deleteItem ExportPaths.items 1
+			setINISetting (The_INI_Path) "Paths" "Export_Paths" (ExportPaths.items as string)
+		)
+	)
+	
+
     function dockstatus = 
 	(
         DialogDock = getINISetting INIfile "Dialog" "Dock"
