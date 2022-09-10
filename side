@@ -1,0 +1,58 @@
+
+utility CC "Export" width:160 height:72 rolledUp:True
+(
+	local theDockState
+    local DialogDock
+    local scriptpath = @"D:\"
+    local INIfile = scriptpath + "Settings.ini"
+	
+	local The_INI_Path = ((GetDir #userScripts) + "/N00BY_Scripts/Export_Settings_2_1.ini")
+	local TheExportPath
+	dropdownList 'ExportPaths' "" pos:[8,8] width:112 height:22 toolTip:"Right click to open selected folder ;)" align:#left 
+	button 'Browse' "..." pos:[128,8] width:25 height:21 toolTip:"Browse for export folder.Right click to purge list" align:#left
+	button 'Export_Button' "Export" pos:[8,40] width:144 height:22 toolTip:"Export selected objects." align:#left
+
+	on ExportPaths rightClick do -- Open the selected path in windows explorer
+	(
+	if ExportPaths.selected != undefined do shellLaunch "explorer.exe" ExportPaths.selected
+	)
+	on Browse pressed do
+	(
+		if ExportPaths.selected != undefined then Global ExportPath = getSavepath initialDir:ExportPaths.selected
+		else Global ExportPath = getSavepath initialDir:(GetDir #export)
+		if ExportPath != undefined do
+		(
+			insertItem ExportPath ExportPaths.items 1
+			ExportPaths.items = makeUniqueArray ExportPaths.items
+			setINISetting (The_INI_Path) "Paths" "Export_Paths" (ExportPaths.items as string)
+		)
+	)
+	on Browse rightClick do
+	(
+		if QueryBox "Are you sure you want to remove the selected path from the list ?" then
+		(
+			ExportPaths.items = deleteItem ExportPaths.items 1
+			setINISetting (The_INI_Path) "Paths" "Export_Paths" (ExportPaths.items as string)
+		)
+	)
+	on Export_Button pressed do
+	(
+		mySelection = #()
+		for i in selection do
+		(	
+			myObj = copy i pos:[0,0,0] name:i.name
+			append mySelection myObj
+		)
+	
+		for i in mySelection do
+		(
+			print i
+			select i
+			converttopoly i
+			resetxform i
+			exportfile (ExportPath + "\\" + i.name) #noPrompt selectedOnly:true
+			delete i
+		)
+		print ExportPath
+	)
+)
